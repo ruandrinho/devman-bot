@@ -1,6 +1,7 @@
 import requests
 import os
 import telegram
+import time
 from dotenv import load_dotenv
 
 if __name__ == '__main__':
@@ -9,6 +10,7 @@ if __name__ == '__main__':
     chat_id = int(os.getenv('TELEGRAM_CHAT_ID'))
     bot = telegram.Bot(token=os.getenv('TELEGRAM_BOT_TOKEN'))
     timestamp_to_request = ''
+    sleep_before_repeat_request = 1
     
     while True:
         try:
@@ -36,4 +38,5 @@ if __name__ == '__main__':
         except requests.exceptions.ReadTimeout:
             pass
         except requests.exceptions.ConnectionError:
-            pass
+            time.sleep(sleep_before_repeat_request)
+            sleep_before_repeat_request *= 2
