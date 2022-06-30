@@ -17,10 +17,12 @@ if __name__ == '__main__':
                 headers={'Authorization': f'Token {devman_token}'},
                 params={'timestamp': timestamp_to_request}
             )
-            if response.json()['status'] == 'timeout':
-                timestamp_to_request = response.json()['timestamp_to_request']
-            elif response.json()['status'] == 'found':
-                for attempt in response.json()['new_attempts']:
+            response.raise_for_status()
+            response_json = response.json()
+            if response_json['status'] == 'timeout':
+                timestamp_to_request = response_json['timestamp_to_request']
+            elif response_json['status'] == 'found':
+                for attempt in response_json['new_attempts']:
                     message = f'У вас проверили работу «{attempt["lesson_title"]}»\n\n'
                     if attempt['is_negative']:
                         message += 'К сожалению, в работе нашлись ошибки\n\n'
@@ -28,7 +30,7 @@ if __name__ == '__main__':
                         message += 'Преподавателю всё понравилось, можно приступать к следующему уроку!\n\n'
                     message += attempt['lesson_url']
                 bot.send_message(chat_id=chat_id, text=message)
-                timestamp_to_request = response.json()['last_attempt_timestamp']
+                timestamp_to_request = response_json['last_attempt_timestamp']
         except requests.exceptions.ReadTimeout:
             pass
         except requests.exceptions.ConnectionError:
