@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 if __name__ == '__main__':
     load_dotenv()
     devman_token = os.getenv('DEVMAN_TOKEN')
-    chat_id = int(os.getenv('CHAT_ID'))
+    chat_id = int(os.getenv('TELEGRAM_CHAT_ID'))
     bot = telegram.Bot(token=os.getenv('TELEGRAM_BOT_TOKEN'))
     timestamp_to_request = ''
     
