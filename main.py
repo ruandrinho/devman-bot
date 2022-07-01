@@ -11,7 +11,7 @@ if __name__ == '__main__':
     bot = telegram.Bot(token=os.getenv('TELEGRAM_BOT_TOKEN'))
     timestamp_to_request = ''
     sleep_before_repeat_request = 1
-    
+
     while True:
         try:
             response = requests.get(
@@ -20,21 +20,23 @@ if __name__ == '__main__':
                 params={'timestamp': timestamp_to_request}
             )
             response.raise_for_status()
-            decoded_response = response.json()
-            if 'error' in decoded_response:
-                raise requests.exceptions.HTTPError(decoded_response['error'])
-            if decoded_response['status'] == 'timeout':
-                timestamp_to_request = decoded_response['timestamp_to_request']
-            elif decoded_response['status'] == 'found':
-                for attempt in decoded_response['new_attempts']:
-                    message = f'У вас проверили работу «{attempt["lesson_title"]}»\n\n'
+            devman_response_data = response.json()
+            if devman_response_data['status'] == 'timeout':
+                timestamp_to_request =\
+                    devman_response_data['timestamp_to_request']
+            elif devman_response_data['status'] == 'found':
+                for attempt in devman_response_data['new_attempts']:
+                    message = f'У вас проверили работу '\
+                              f'«{attempt["lesson_title"]}»\n\n'
                     if attempt['is_negative']:
                         message += 'К сожалению, в работе нашлись ошибки\n\n'
                     else:
-                        message += 'Преподавателю всё понравилось, можно приступать к следующему уроку!\n\n'
+                        message += 'Преподавателю всё понравилось, '\
+                                   'можно приступать к следующему уроку!\n\n'
                     message += attempt['lesson_url']
                 bot.send_message(chat_id=chat_id, text=message)
-                timestamp_to_request = decoded_response['last_attempt_timestamp']
+                timestamp_to_request =\
+                    devman_response_data['last_attempt_timestamp']
         except requests.exceptions.ReadTimeout:
             pass
         except requests.exceptions.ConnectionError:
