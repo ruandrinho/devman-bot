@@ -20,12 +20,12 @@ if __name__ == '__main__':
                 params={'timestamp': timestamp_to_request}
             )
             response.raise_for_status()
-            devman_response_data = response.json()
-            if devman_response_data['status'] == 'timeout':
+            devman_reviews = response.json()
+            if devman_reviews['status'] == 'timeout':
                 timestamp_to_request =\
-                    devman_response_data['timestamp_to_request']
-            elif devman_response_data['status'] == 'found':
-                for attempt in devman_response_data['new_attempts']:
+                    devman_reviews['timestamp_to_request']
+            elif devman_reviews['status'] == 'found':
+                for attempt in devman_reviews['new_attempts']:
                     message = f'У вас проверили работу '\
                               f'«{attempt["lesson_title"]}»\n\n'
                     if attempt['is_negative']:
@@ -36,7 +36,7 @@ if __name__ == '__main__':
                     message += attempt['lesson_url']
                 bot.send_message(chat_id=chat_id, text=message)
                 timestamp_to_request =\
-                    devman_response_data['last_attempt_timestamp']
+                    devman_reviews['last_attempt_timestamp']
         except requests.exceptions.ReadTimeout:
             pass
         except requests.exceptions.ConnectionError:
