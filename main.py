@@ -2,10 +2,13 @@ import requests
 import os
 import telegram
 import time
+import logging
 from dotenv import load_dotenv
 
 if __name__ == '__main__':
     load_dotenv()
+    logging.basicConfig(level=logging.DEBUG)
+    logging.info('Бот запущен')
     devman_token = os.getenv('DEVMAN_TOKEN')
     chat_id = int(os.getenv('TELEGRAM_CHAT_ID'))
     bot = telegram.Bot(token=os.getenv('TELEGRAM_BOT_TOKEN'))
