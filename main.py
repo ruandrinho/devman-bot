@@ -5,13 +5,33 @@ import time
 import logging
 from dotenv import load_dotenv
 
+logger = logging.getLogger(__file__)
+
+
+class TelegramLogsHandler(logging.Handler):
+
+    def __init__(self, tg_bot, chat_id):
+        super().__init__()
+        self.chat_id = chat_id
+        self.tg_bot = tg_bot
+
+    def emit(self, record):
+        log_entry = self.format(record)
+        self.tg_bot.send_message(chat_id=self.chat_id, text=log_entry)
+
+
 if __name__ == '__main__':
     load_dotenv()
-    logging.basicConfig(level=logging.DEBUG)
-    logging.info('Бот запущен')
     devman_token = os.getenv('DEVMAN_TOKEN')
     chat_id = int(os.getenv('TELEGRAM_CHAT_ID'))
     bot = telegram.Bot(token=os.getenv('TELEGRAM_BOT_TOKEN'))
+
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format='%(asctime)s %(levelname)s %(message)s'
+    )
+    logger.addHandler(TelegramLogsHandler(bot, chat_id))
+
     timestamp_to_request = ''
     sleep_before_repeat_request = 1
 
@@ -37,7 +57,8 @@ if __name__ == '__main__':
                         message += 'Преподавателю всё понравилось, '\
                                    'можно приступать к следующему уроку!\n\n'
                     message += attempt['lesson_url']
-                bot.send_message(chat_id=chat_id, text=message)
+                # bot.send_message(chat_id=chat_id, text=message)
+                logger.warning(message)
                 timestamp_to_request =\
                     devman_reviews['last_attempt_timestamp']
         except requests.exceptions.ReadTimeout:
