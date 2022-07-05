@@ -31,6 +31,7 @@ if __name__ == '__main__':
         format='%(asctime)s %(levelname)s %(message)s'
     )
     logger.addHandler(TelegramLogsHandler(bot, chat_id))
+    logger.info('Бот запущен')
 
     timestamp_to_request = ''
     sleep_before_repeat_request = 1
@@ -66,3 +67,5 @@ if __name__ == '__main__':
         except requests.exceptions.ConnectionError:
             time.sleep(sleep_before_repeat_request)
             sleep_before_repeat_request *= 2
+        except Exception:
+            logger.exception('Бот упал с ошибкой:')
